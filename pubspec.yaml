@@ -1,0 +1,16 @@
+name: arabic_runner
+publish_to: 'none'
+version: 1.0.0+1
+description: لعبة منصات عربية ثنائية الأبعاد باستخدام Flutter وFlame.
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  flame: ^1.19.0
+  cupertino_icons: ^1.0.8
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/5416.png
+    - assets/audio/
