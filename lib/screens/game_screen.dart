@@ -1,1 +1,16 @@
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
+import '../game/game_models.dart';
+import '../game/platformer_game.dart';
+import '../widgets/touch_controls.dart';
 
+class GameScreen extends StatefulWidget { const GameScreen({super.key}); @override State<GameScreen> createState() => _GameScreenState(); }
+class _GameScreenState extends State<GameScreen> {
+  late final PlatformerGame game;
+  RunState state = RunState.menu;
+  @override void initState() { super.initState(); game = PlatformerGame(onStateChanged: (s) => setState(() => state = s)); }
+  @override Widget build(BuildContext context) => Scaffold(backgroundColor: const Color(0xff071c2c), body: Stack(children: [GameWidget(game: game), if (state == RunState.playing) _hud(), if (state == RunState.playing) TouchControls(game: game), if (state != RunState.playing) _overlay() ]));
+  Widget _hud() => Positioned(top: 18, left: 18, right: 18, child: SafeArea(child: AnimatedBuilder(animation: Listenable.merge([game.score, game.lives, game.level, game.timeLeft]), builder: (_, __) => Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [_pill('المرحلة ${game.level.value + 1}/3'), _pill('النقاط ${game.score.value}'), _pill('الحياة ${game.lives.value}'), _pill('الوقت ${game.timeLeft.value.ceil()}')]))));
+  Widget _pill(String text) => DecoratedBox(decoration: BoxDecoration(color: Colors.black.withOpacity(.55), borderRadius: BorderRadius.circular(18), border: Border.all(color: const Color(0xffffd447))), child: Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7), child: Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))));
+  Widget _overlay() { final title = state == RunState.menu ? 'مغامرة الصحراء' : state == RunState.levelComplete ? 'أحسنت! وصلت للنهاية' : state == RunState.victory ? 'انتصار رائع!' : 'انتهت المحاولة'; final subtitle = state == RunState.menu ? 'أنقذ النجوم واعبر المراحل الثلاث' : state == RunState.levelComplete ? 'استعد للمرحلة التالية' : state == RunState.victory ? 'أكملت كل المراحل بنجاح' : 'لا تستسلم، حاول مرة أخرى'; return Center(child: Container(width: 360, padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: const Color(0xff102c42).withOpacity(.96), borderRadius: BorderRadius.circular(28), border: Border.all(color: const Color(0xffffd447), width: 2)), child: Column(mainAxisSize: MainAxisSize.min, children: [Image.asset('assets/images/5416.png', height: 150, fit: BoxFit.contain), Text(title, textAlign: TextAlign.center, style: const TextStyle(color: Color(0xffffd447), fontSize: 28, fontWeight: FontWeight.w900)), const SizedBox(height: 8), Text(subtitle, style: const TextStyle(color: Colors.white70, fontSize: 16)), const SizedBox(height: 20), FilledButton(onPressed: () { if (state == RunState.levelComplete) game.continueNext(); else if (state == RunState.menu) game.start(); else game.restart(); setState(() => state = RunState.playing); }, style: FilledButton.styleFrom(backgroundColor: const Color(0xffe5394f), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14)), child: Text(state == RunState.menu ? 'ابدأ المغامرة' : state == RunState.levelComplete ? 'المرحلة التالية' : 'إعادة المحاولة'))]))); }
+}
